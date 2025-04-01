@@ -64,7 +64,7 @@ impl Scanner {
                 }
                 // directivas de preprocesamiento
                 '#' => {
-                    // si es un simbolo de comentario, comenzamos a leer el comentario
+                    // si es un simbolo de para declarar un preprocesador, comenzamos a leer el el preprocesador
                     let start_column = self.column;
                     let mut lexeme = String::new();
                     // agregamos el # porque en token.rs tenemos definido el simbolo para la funcion from_string
@@ -72,12 +72,14 @@ impl Scanner {
                     self.column += 1;
                     chars.next();
 
-                    // ignoramos el resto de la linea
                     while let Some(&next_char) = chars.peek() {
+                        // asumimos que una directiva termina con un espacio en blanco que es solo alfabetica (no nos interesa los argumentos de la directiva y se clasificiaran como otros tokens)
                         if !next_char.is_alphabetic() || next_char.is_whitespace() {
                             break;
                         }
 
+                        // si es un caracter alfanumerico, lo agregamos al lexema
+                        // y pasamos al siguiente caracter
                         lexeme.push(next_char);
                         self.column += 1;
                         chars.next();
@@ -87,7 +89,7 @@ impl Scanner {
                     let token_type = TokenType::from_string(lexeme.clone());
                     self.tokens
                         .push(Token::new(token_type, lexeme, self.line, start_column));
-                },
+                }
                 // no incluimos 0-9 porque si es un id, no puede comenzar con un numero
                 'a'..='z' | 'A'..'Z' | '_' => {
                     // dicho que se me ocurrio mientras programaba esto: todo es un identificador hasta que se demuestre lo contrario
@@ -101,14 +103,13 @@ impl Scanner {
                     // Pero supondre que es un error gramatico y que falto un _ despues de letter en la definicion que tiene [...]*
                     // tal que ID = [letter | _]+[digit|letter|_]*
                     while let Some(&char) = chars.peek() {
-                        // aqui si aceptamos numeros porque los id no puede comenzar con un numero
-                        if char.is_alphanumeric() || char == '_' {
-                            lexeme.push(char);
-                            self.column += 1;
-                            chars.next();
-                        } else {
+                        if !char.is_alphanumeric() && char != '_' {
                             break;
                         }
+                        // si es un caracter alfanumerico o un guion bajo, lo agregamos al lexema
+                        lexeme.push(char);
+                        self.column += 1;
+                        chars.next();
                     }
                     // verificamos si es una palabra reservada y si no entonces es un identificador por defecto
                     let token_type = TokenType::from_string(lexeme.clone());
@@ -122,13 +123,13 @@ impl Scanner {
                     // digit = [0-9]
                     // INT_NUM = [digit]+
                     while let Some(&char) = chars.peek() {
-                        if char.is_digit(10) {
-                            lexeme.push(char);
-                            self.column += 1;
-                            chars.next();
-                        } else {
+                        if !char.is_digit(10) {
                             break;
                         }
+
+                        lexeme.push(char);
+                        self.column += 1;
+                        chars.next();
                     }
                     self.tokens.push(Token::new(
                         TokenType::INT_NUM,
@@ -142,28 +143,31 @@ impl Scanner {
                     // si es un simbolo de comentario, comenzamos a leer el comentario
                     let start_column = self.column;
                     let mut lexeme = String::new();
+
                     lexeme.push(char);
                     self.column += 1;
                     chars.next();
 
-                    // verificamos si es un comentario de una sola linea o de varias lineas
+                    // verificamos si el siguiente caracter es un / para entonces ser //
                     if let Some(&next_char) = chars.peek() {
                         if next_char == '/' {
-                            // ignoramos
                             break;
-                        } else {
-                            // no es un comentario, lo agregamos como un simbolo
-                            let token_type = TokenType::from_string(lexeme.clone());
-                            self.tokens
-                                .push(Token::new(token_type, lexeme.clone(), self.line, start_column));
                         }
+
+                        let token_type = TokenType::from_string(lexeme.clone());
+                        self.tokens.push(Token::new(
+                            token_type,
+                            lexeme,
+                            self.line,
+                            start_column,
+                        ));
                     } else {
                         // no es un comentario, lo agregamos como un simbolo
                         let token_type = TokenType::from_string(lexeme.clone());
                         self.tokens
                             .push(Token::new(token_type, lexeme, self.line, start_column));
                     }
-                },
+                }
                 // manejamos exactamente estos simbolos y no otros, para poder manejar dobles simbolos como lo son &&, ||, ==, !=, <=, >=, <<, >>, etc
                 '&' | '|' | '=' | '!' | '<' | '>' => {
                     let start_column = self.column;

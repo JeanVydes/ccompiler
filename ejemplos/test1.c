@@ -1,6 +1,5 @@
 #include <iostream>
 #if defined(__GNUC__) && !defined(__clang__)
-#warning "Compilando con GCC"
 #endif
 
 int main() { 
@@ -8,7 +7,7 @@ int main() {
     int b; 
     a = b + 1;
     if (a && b) {
-        b = a-1;
+        b = a / b;
     } 
     int c = a+b+1; // Comentario
     return 0;  
