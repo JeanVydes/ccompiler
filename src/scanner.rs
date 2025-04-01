@@ -62,7 +62,33 @@ impl Scanner {
                     self.column += 1;
                     chars.next();
                 }
+                // directivas de preprocesamiento
+                '#' => {
+                    // si es un simbolo de comentario, comenzamos a leer el comentario
+                    let start_column = self.column;
+                    let mut lexeme = String::new();
+                    // agregamos el # porque en token.rs tenemos definido el simbolo para la funcion from_string
+                    lexeme.push(char);
+                    self.column += 1;
+                    chars.next();
 
+                    // ignoramos el resto de la linea
+                    while let Some(&next_char) = chars.peek() {
+                        if !next_char.is_alphabetic() || next_char.is_whitespace() {
+                            break;
+                        }
+
+                        lexeme.push(next_char);
+                        self.column += 1;
+                        chars.next();
+                    }
+
+                    // lo agregamos como un simbolo
+                    let token_type = TokenType::from_string(lexeme.clone());
+                    self.tokens
+                        .push(Token::new(token_type, lexeme, self.line, start_column));
+                },
+                // no incluimos 0-9 porque si es un id, no puede comenzar con un numero
                 'a'..='z' | 'A'..'Z' | '_' => {
                     // dicho que se me ocurrio mientras programaba esto: todo es un identificador hasta que se demuestre lo contrario
 
@@ -75,6 +101,7 @@ impl Scanner {
                     // Pero supondre que es un error gramatico y que falto un _ despues de letter en la definicion que tiene [...]*
                     // tal que ID = [letter | _]+[digit|letter|_]*
                     while let Some(&char) = chars.peek() {
+                        // aqui si aceptamos numeros porque los id no puede comenzar con un numero
                         if char.is_alphanumeric() || char == '_' {
                             lexeme.push(char);
                             self.column += 1;
@@ -128,8 +155,13 @@ impl Scanner {
                             // no es un comentario, lo agregamos como un simbolo
                             let token_type = TokenType::from_string(lexeme.clone());
                             self.tokens
-                                .push(Token::new(token_type, lexeme, self.line, start_column));
+                                .push(Token::new(token_type, lexeme.clone(), self.line, start_column));
                         }
+                    } else {
+                        // no es un comentario, lo agregamos como un simbolo
+                        let token_type = TokenType::from_string(lexeme.clone());
+                        self.tokens
+                            .push(Token::new(token_type, lexeme, self.line, start_column));
                     }
                 },
                 // manejamos exactamente estos simbolos y no otros, para poder manejar dobles simbolos como lo son &&, ||, ==, !=, <=, >=, <<, >>, etc

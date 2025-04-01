@@ -1,3 +1,8 @@
+#include <iostream>
+#if defined(__GNUC__) && !defined(__clang__)
+#warning "Compilando con GCC"
+#endif
+
 int main() { 
     int a; 
     int b; 

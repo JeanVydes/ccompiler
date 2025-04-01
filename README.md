@@ -16,9 +16,3 @@ cargo run ejemplos/test1.c
 ```
 
 *El comando debe ser ejecutado estando dentro de la carpeta*
-
-## Autores
-
-[Jean Vides](https://github.com/JeanVydes)
-Luis Rincon
-Santiago Criollo

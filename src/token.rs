@@ -2,14 +2,60 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     // palabras reservas (keywords)
-    INT, MAIN, VOID, BREAK, DO, ELSE, IF, WHILE, RETURN, READ, WRITE,
+    INT,
+    MAIN,
+    VOID,
+    BREAK,
+    DO,
+    ELSE,
+    IF,
+    WHILE,
+    RETURN,
+    READ,
+    WRITE,
     // simbolos especiales
-    LBRACE, RBRACE, LSQUARE, RQUARE, LPAR, RPAR, SEMI, PLUS, MINUS, MUL_OP, DIV_OP, AND_OP, OR_OP, NOT_OP, ASSIGN, LT, GT, SHL_OP, SHR_OP, EQ, NOTEQ, LTEQ, GTEQ, COMMA,
+    LBRACE,
+    RBRACE,
+    LSQUARE,
+    RQUARE,
+    LPAR,
+    RPAR,
+    SEMI,
+    PLUS,
+    MINUS,
+    MUL_OP,
+    DIV_OP,
+    AND_OP,
+    OR_OP,
+    NOT_OP,
+    ASSIGN,
+    LT,
+    GT,
+    SHL_OP,
+    SHR_OP,
+    EQ,
+    NOTEQ,
+    LTEQ,
+    GTEQ,
+    COMMA,
 
     // numeros e identificadores
-    INT_NUM, ID,
-    
-    // tokens 
+    INT_NUM,
+    ID,
+
+    // directivas de pre procesamiento
+    PP_DEFINE,
+    PP_ELIF,
+    PP_ELSE,
+    PP_ENDIF,
+    PP_IF,
+    PP_INCLUDE,
+    PP_UNDEF,
+    PP_MESSAGE,
+    PP_IFDEF,
+    PP_IFNDEF,
+
+    // tokens
     ERR,
 }
 
@@ -30,6 +76,18 @@ impl TokenType {
             "return" => TokenType::RETURN,
             "read" => TokenType::READ,
             "write" => TokenType::WRITE,
+
+            "#define" => TokenType::PP_DEFINE,
+            "#elif" => TokenType::PP_ELIF,
+            "#else" => TokenType::PP_ELSE,
+            "#endif" => TokenType::PP_ENDIF,
+            "#ifdef" => TokenType::PP_IFDEF,
+            "#ifndef" => TokenType::PP_IFNDEF,
+            "#include" => TokenType::PP_INCLUDE,
+            "#undef" => TokenType::PP_UNDEF,
+            "#message" => TokenType::PP_MESSAGE,
+            "#if" => TokenType::PP_IF,
+
             "{" => TokenType::LBRACE,
             "}" => TokenType::RBRACE,
             "[" => TokenType::LSQUARE,
@@ -54,7 +112,7 @@ impl TokenType {
             "!=" => TokenType::NOTEQ,
             "<=" => TokenType::LTEQ,
             ">=" => TokenType::GTEQ,
-            
+
             "," => TokenType::COMMA,
 
             _ => {
